@@ -13,9 +13,20 @@ export default function CompanyRecommendations() {
   const [files, setFiles] = useState<File[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+    const fileList = e.target.files;
+    if (fileList) {
+      setFiles(prevFiles => {
+        const newFiles = Array.from(fileList);
+        // Avoid duplicates by file name
+        const existingNames = new Set(prevFiles.map(f => f.name));
+        const filteredNewFiles = newFiles.filter(f => !existingNames.has(f.name));
+        return [...prevFiles, ...filteredNewFiles];
+      });
     }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -41,7 +52,7 @@ export default function CompanyRecommendations() {
       const response = await fetch('https://mpoff3.app.n8n.cloud/webhook/product-recs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company: companyName, docs }),
+        body: JSON.stringify({ company: companyName, docs: docs }),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.text();
@@ -94,8 +105,24 @@ export default function CompanyRecommendations() {
               disabled={isLoading}
             />
             {files.length > 0 && (
-              <div className="text-[#1A237E] text-sm mt-2">
-                <strong>Files:</strong> {files.map(f => f.name).join(', ')}
+              <div className="text-[#1A237E] text-sm mt-2 w-full">
+                <strong>Files:</strong>
+                <ul className="mt-1 space-y-1">
+                  {files.map((f, idx) => (
+                    <li key={f.name + idx} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-1">
+                      <span className="truncate max-w-xs" title={f.name}>{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(idx)}
+                        className="ml-3 text-red-600 hover:text-red-800 font-bold px-2 py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-red-300"
+                        aria-label={`Remove ${f.name}`}
+                        disabled={isLoading}
+                      >
+                        &times;
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
             {error && (

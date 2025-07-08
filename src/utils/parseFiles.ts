@@ -1,10 +1,5 @@
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
-import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
-import pdfjsVersion from 'pdfjs-dist/package.json';
-
-// Set the workerSrc for pdfjs
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion.version}/pdf.worker.min.js`;
 
 export async function parseFiles(files: File[]): Promise<string> {
   const results: string[] = [];
@@ -26,6 +21,16 @@ export async function parseFiles(files: File[]): Promise<string> {
 }
 
 async function parsePDF(file: File): Promise<string> {
+  if (typeof window === 'undefined') {
+    throw new Error('PDF parsing is only supported in the browser.');
+  }
+  // Dynamically import pdfjs-dist only in the browser
+  // @ts-expect-error: No type declarations for legacy build
+  const pdfjsDist = await import('pdfjs-dist/legacy/build/pdf');
+  const pdfjsVersion = (await import('pdfjs-dist/package.json')).default;
+  pdfjsDist.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion.version}/pdf.worker.min.js`;
+  const { getDocument } = pdfjsDist;
+
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await getDocument({ data: arrayBuffer }).promise;
   let text = '';
