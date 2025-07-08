@@ -7,35 +7,62 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex space-x-8">
+    <header className="fixed w-full z-50">
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex h-16 items-center justify-between px-8">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="relative">
+                  <img
+                    src="/bbl-logo.png"
+                    alt="Bangkok Bank Logo"
+                    className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <span className="text-[#002B5C] text-lg font-medium tracking-tight">Bangkok Bank</span>
+              </Link>
+            </div>
+
+            <div className="flex space-x-1 -ml-32">
               <Link
                 href="/"
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
                   pathname === '/'
-                    ? 'border-[#002B5C] text-[#002B5C]'
-                    : 'border-transparent text-gray-500 hover:text-[#002B5C] hover:border-gray-300'
+                    ? 'text-[#002B5C] bg-gray-100'
+                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
                 }`}
               >
-                Product Recommendation Engine
+                <span className="relative z-10">Product Recommendations</span>
+              </Link>
+              <Link
+                href="/product-chatbot"
+                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
+                  pathname === '/product-chatbot'
+                    ? 'text-[#002B5C] bg-gray-100'
+                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
+                }`}
+              >
+                <span className="relative z-10">Product Chatbot</span>
               </Link>
               <Link
                 href="/lead-generator"
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 ${
+                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
                   pathname === '/lead-generator'
-                    ? 'border-[#002B5C] text-[#002B5C]'
-                    : 'border-transparent text-gray-500 hover:text-[#002B5C] hover:border-gray-300'
+                    ? 'text-[#002B5C] bg-gray-100'
+                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
                 }`}
               >
-                Lead Generator
+                <span className="relative z-10">Lead Generator</span>
               </Link>
+            </div>
+
+            <div className="w-10">
+              {/* Placeholder for spacing */}
             </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 } 

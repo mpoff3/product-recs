@@ -88,62 +88,64 @@ export default function CompanyRecommendations() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center text-white font-sans relative" style={{ backgroundColor: '#0047AB' }}>
-      <div className="w-full max-w-5xl flex flex-col items-center px-2 pt-12 pb-8 mx-auto">
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex items-center gap-4">
-            <img
-              src="/bbl-logo.png"
-              alt="Bangkok Bank Logo"
-              className="h-12 w-12 object-contain"
-            />
-            <h1 className="text-4xl font-extrabold tracking-tight text-white text-center drop-shadow-lg">BBL Product Recommendation Engine</h1>
-          </div>
+    <div className="min-h-screen w-full flex flex-col items-center bg-gradient-to-b from-[#002B5C] to-[#004299] text-white font-sans pt-16">
+      <div className="w-full max-w-5xl flex flex-col items-center px-4 py-16 mx-auto">
+        <div className="mb-12 flex flex-col items-center">
+          <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Recommendations</h1>
+          <p className="text-lg text-gray-200 text-center">
+            AI-powered product recommendations tailored to your business needs
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
-          <div className="w-full bg-white rounded-2xl shadow-2xl flex flex-col items-stretch px-12 py-10 gap-6 max-w-4xl mx-auto">
-            <label htmlFor="companyName" className="text-lg font-semibold text-[#1A237E] mb-2">Company Name</label>
-            <input
-              type="text"
-              id="companyName"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="e.g., Acme Corporation"
-              className="w-full text-[#1A237E] bg-blue-50 border border-blue-200 rounded-xl py-4 px-6 text-xl font-medium focus:ring-2 focus:ring-[#3949AB] focus:border-[#3949AB] outline-none transition-colors placeholder:text-[#14195e] shadow-sm"
-              disabled={isLoading}
-              autoFocus
-              aria-label="Company Name"
-              onKeyDown={e => { if (e.key === 'Enter') { handleSubmit(); } }}
-            />
-            <label htmlFor="docs" className="text-lg font-semibold text-[#1A237E] mt-4">Upload Documents (Word, PDF, Excel)</label>
-            <div className="relative w-full">
-              <label
-                htmlFor="docs"
-                className="w-full flex items-center justify-center text-[#14195e] bg-[#F1F1F1] border-2 border-dashed border-[#666666] rounded-xl py-4 px-6 text-lg focus-within:ring-2 focus-within:ring-[#3949AB] focus-within:border-[#3949AB] outline-none transition-colors hover:border-[#4d4d4d] cursor-pointer"
-              >
-                Select File(s)
-              </label>
+          <div className="w-full bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl flex flex-col items-stretch p-8 gap-8 max-w-4xl mx-auto border border-white/20">
+            <div>
+              <label htmlFor="companyName" className="text-lg font-medium text-white mb-3 block">Company Name</label>
               <input
-                type="file"
-                id="docs"
-                accept=".pdf,.docx,.xlsx"
-                multiple
-                onChange={handleFileChange}
-                className="sr-only"
+                type="text"
+                id="companyName"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="e.g., Acme Corporation"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-xl font-medium text-white placeholder:text-gray-400 focus:ring-2 focus:ring-white/25 focus:border-transparent outline-none transition-all"
                 disabled={isLoading}
+                autoFocus
+                aria-label="Company Name"
+                onKeyDown={e => { if (e.key === 'Enter') { handleSubmit(); } }}
               />
             </div>
+            
+            <div>
+              <label htmlFor="docs" className="text-lg font-medium text-white mb-3 block">Upload Documents</label>
+              <div className="relative w-full">
+                <label
+                  htmlFor="docs"
+                  className="w-full flex items-center justify-center text-white bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-lg transition-all hover:bg-white/10 cursor-pointer"
+                >
+                  Select File(s)
+                </label>
+                <input
+                  type="file"
+                  id="docs"
+                  accept=".pdf,.docx,.xlsx"
+                  multiple
+                  onChange={handleFileChange}
+                  className="sr-only"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
             {files.length > 0 && (
-              <div className="text-[#1A237E] text-sm mt-2 w-full">
-                <strong>Files:</strong>
-                <ul className="mt-1 space-y-1">
+              <div className="text-white text-sm">
+                <strong className="font-medium">Files:</strong>
+                <ul className="mt-2 space-y-2">
                   {files.map((f, idx) => (
-                    <li key={f.name + idx} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-1">
+                    <li key={f.name + idx} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-2">
                       <span className="truncate max-w-xs" title={f.name}>{f.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(idx)}
-                        className="ml-3 text-red-600 hover:text-red-800 font-bold px-2 py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-red-300"
+                        className="ml-3 text-red-300 hover:text-red-200 font-medium px-2 py-0.5 rounded focus:outline-none"
                         aria-label={`Remove ${f.name}`}
                         disabled={isLoading}
                       >
@@ -154,42 +156,44 @@ export default function CompanyRecommendations() {
                 </ul>
               </div>
             )}
+
             {error && (
-              <div className="w-full bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-center text-base font-medium shadow-sm animate-pulse mt-2">
+              <div className="w-full bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-200 text-center text-base font-medium">
                 {error}
               </div>
             )}
           </div>
         </form>
+
         {recommendations && (
-          <div className="w-full mt-8 bg-white/90 border border-blue-200 rounded-2xl p-8 shadow-2xl max-w-4xl mx-auto">
+          <div className="w-full mt-8 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl max-w-4xl mx-auto border border-white/20">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#1A237E]">Recommended Products</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-[#1A237E] font-medium">Thai</span>
+              <h2 className="text-2xl font-bold text-white">Recommended Products</h2>
+              <div className="flex items-center gap-3">
+                <span className="text-white/90 font-medium">Thai</span>
                 <button
                   onClick={() => setIsThaiLanguage(!isThaiLanguage)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3949AB] focus:ring-offset-2 ${
-                    isThaiLanguage ? 'bg-[#1A237E]' : 'bg-gray-200'
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/25 ${
+                    isThaiLanguage ? 'bg-white' : 'bg-white/20'
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      isThaiLanguage ? 'translate-x-6' : 'translate-x-1'
+                    className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
+                      isThaiLanguage ? 'translate-x-6 bg-[#002B5C]' : 'translate-x-1 bg-white'
                     }`}
                   />
                 </button>
               </div>
             </div>
-            <div className="text-[#1A237E] text-left">
+            <div className="text-white prose prose-invert max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4 text-[#1A237E]">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-6 text-[#1A237E]">{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-4 text-[#1A237E]">{children}</h3>,
-                  p: ({ children }) => <p className="mb-4 text-[#1A237E] leading-relaxed">{children}</p>,
-                  strong: ({ children }) => <strong className="font-semibold text-[#1A237E]">{children}</strong>,
-                  em: ({ children }) => <em className="italic text-[#1A237E]">{children}</em>,
+                  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-6">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-4">{children}</h3>,
+                  p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
+                  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                  em: ({ children }) => <em className="italic">{children}</em>,
                 }}
               >
                 {isThaiLanguage ? recommendations.output_TH : recommendations.output_EN}
@@ -198,15 +202,16 @@ export default function CompanyRecommendations() {
           </div>
         )}
       </div>
+
       <button
         type="button"
         onClick={handleSubmit}
         disabled={isLoading || !companyName.trim()}
-        className="fixed z-50 bottom-8 right-8 flex items-center gap-2 bg-[#002B5C] hover:bg-[#001F42] text-white py-4 px-10 rounded-2xl font-bold text-xl shadow-2xl focus:ring-2 focus:ring-[#3949AB] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="fixed z-50 bottom-8 right-8 flex items-center gap-2 bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         style={{ minWidth: '240px' }}
       >
         {isLoading && (
-          <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-6 w-6 text-[#002B5C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
           </svg>

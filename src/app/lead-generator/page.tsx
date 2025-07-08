@@ -1,19 +1,15 @@
 export default function LeadGenerator() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center text-white font-sans relative" style={{ backgroundColor: '#0047AB' }}>
-      <div className="w-full max-w-5xl flex flex-col items-center px-2 pt-12 pb-8 mx-auto">
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex items-center gap-4">
-            <img
-              src="/bbl-logo.png"
-              alt="Bangkok Bank Logo"
-              className="h-12 w-12 object-contain"
-            />
-            <h1 className="text-4xl font-extrabold tracking-tight text-white text-center drop-shadow-lg">BBL Lead Generator</h1>
-          </div>
+    <div className="min-h-screen w-full flex flex-col items-center bg-gradient-to-b from-[#002B5C] to-[#004299] text-white font-sans pt-16">
+      <div className="w-full max-w-5xl flex flex-col items-center px-4 py-16 mx-auto">
+        <div className="mb-12 flex flex-col items-center">
+          <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Lead Generator</h1>
+          <p className="text-lg text-gray-200 text-center max-w-2xl">
+            Generate high-quality leads for your business using advanced AI algorithms.
+          </p>
         </div>
-        <div className="w-full bg-white rounded-2xl shadow-2xl flex flex-col items-stretch px-12 py-10 gap-6 max-w-4xl mx-auto">
-          <p className="text-[#1A237E] text-center">Lead Generator coming soon...</p>
+        <div className="w-full bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl max-w-4xl mx-auto border border-white/20">
+          <p className="text-white/90 text-center text-lg">Coming soon...</p>
         </div>
       </div>
     </div>
