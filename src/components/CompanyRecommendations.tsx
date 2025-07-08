@@ -11,6 +11,7 @@ export default function CompanyRecommendations() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [isThaiLanguage, setIsThaiLanguage] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -77,7 +78,14 @@ export default function CompanyRecommendations() {
     <div className="min-h-screen w-full flex flex-col items-center justify-center text-white font-sans relative" style={{ backgroundColor: '#0047AB' }}>
       <div className="w-full max-w-5xl flex flex-col items-center px-2 pt-12 pb-8 mx-auto">
         <div className="mb-8 flex flex-col items-center">
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white text-center drop-shadow-lg">BBL Product Recommendation Engine</h1>
+          <div className="flex items-center gap-4">
+            <img
+              src="/bbl-logo.png"
+              alt="Bangkok Bank Logo"
+              className="h-12 w-12 object-contain"
+            />
+            <h1 className="text-4xl font-extrabold tracking-tight text-white text-center drop-shadow-lg">BBL Product Recommendation Engine</h1>
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
           <div className="w-full bg-white rounded-2xl shadow-2xl flex flex-col items-stretch px-12 py-10 gap-6 max-w-4xl mx-auto">
@@ -87,23 +95,31 @@ export default function CompanyRecommendations() {
               id="companyName"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="e.g. Acme Corporation"
-              className="w-full text-[#1A237E] bg-blue-50 border border-blue-200 rounded-xl py-4 px-6 text-xl font-medium focus:ring-2 focus:ring-[#3949AB] focus:border-[#3949AB] outline-none transition-colors placeholder-blue-300 shadow-sm"
+              placeholder="e.g., Acme Corporation"
+              className="w-full text-[#1A237E] bg-blue-50 border border-blue-200 rounded-xl py-4 px-6 text-xl font-medium focus:ring-2 focus:ring-[#3949AB] focus:border-[#3949AB] outline-none transition-colors placeholder:text-[#14195e] shadow-sm"
               disabled={isLoading}
               autoFocus
               aria-label="Company Name"
               onKeyDown={e => { if (e.key === 'Enter') { handleSubmit(); } }}
             />
             <label htmlFor="docs" className="text-lg font-semibold text-[#1A237E] mt-4">Upload Documents (Word, PDF, Excel)</label>
-            <input
-              type="file"
-              id="docs"
-              accept=".pdf,.docx,.xlsx"
-              multiple
-              onChange={handleFileChange}
-              className="w-full text-[#1A237E] bg-blue-50 border border-blue-200 rounded-xl py-2 px-4 text-base focus:ring-2 focus:ring-[#3949AB] focus:border-[#3949AB] outline-none transition-colors placeholder-blue-300 shadow-sm"
-              disabled={isLoading}
-            />
+            <div className="relative w-full">
+              <label
+                htmlFor="docs"
+                className="w-full flex items-center justify-center text-[#14195e] bg-[#F1F1F1] border-2 border-dashed border-[#666666] rounded-xl py-4 px-6 text-lg focus-within:ring-2 focus-within:ring-[#3949AB] focus-within:border-[#3949AB] outline-none transition-colors hover:border-[#4d4d4d] cursor-pointer"
+              >
+                Select File(s)
+              </label>
+              <input
+                type="file"
+                id="docs"
+                accept=".pdf,.docx,.xlsx"
+                multiple
+                onChange={handleFileChange}
+                className="sr-only"
+                disabled={isLoading}
+              />
+            </div>
             {files.length > 0 && (
               <div className="text-[#1A237E] text-sm mt-2 w-full">
                 <strong>Files:</strong>
@@ -134,7 +150,24 @@ export default function CompanyRecommendations() {
         </form>
         {recommendations && (
           <div className="w-full mt-8 bg-white/90 border border-blue-200 rounded-2xl p-8 shadow-2xl max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-[#1A237E] mb-6 text-center">Recommended Products</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-[#1A237E]">Recommended Products</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-[#1A237E] font-medium">Thai</span>
+                <button
+                  onClick={() => setIsThaiLanguage(!isThaiLanguage)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3949AB] focus:ring-offset-2 ${
+                    isThaiLanguage ? 'bg-[#1A237E]' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isThaiLanguage ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
             <div className="text-[#1A237E] text-left">
               <ReactMarkdown
                 components={{
@@ -156,7 +189,7 @@ export default function CompanyRecommendations() {
         type="button"
         onClick={handleSubmit}
         disabled={isLoading || !companyName.trim()}
-        className="fixed z-50 bottom-8 right-8 flex items-center gap-2 bg-[#1A237E] hover:bg-[#283593] text-white py-4 px-10 rounded-2xl font-bold text-xl shadow-2xl focus:ring-2 focus:ring-[#3949AB] focus:ring-offset-2 disabled:bg-blue-200 disabled:cursor-not-allowed transition-all"
+        className="fixed z-50 bottom-8 right-8 flex items-center gap-2 bg-[#002B5C] hover:bg-[#001F42] text-white py-4 px-10 rounded-2xl font-bold text-xl shadow-2xl focus:ring-2 focus:ring-[#3949AB] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         style={{ minWidth: '240px' }}
       >
         {isLoading && (
