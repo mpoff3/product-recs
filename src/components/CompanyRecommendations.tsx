@@ -7,7 +7,7 @@ import { parseFiles } from '../utils/parseFiles';
 
 export default function CompanyRecommendations() {
   const [companyName, setCompanyName] = useState('');
-  const [recommendations, setRecommendations] = useState('');
+  const [recommendations, setRecommendations] = useState<{ output_EN: string; output_TH: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -38,7 +38,7 @@ export default function CompanyRecommendations() {
     }
     setIsLoading(true);
     setError('');
-    setRecommendations('');
+    setRecommendations(null);
     let docs = '';
     if (files.length > 0) {
       try {
@@ -57,16 +57,29 @@ export default function CompanyRecommendations() {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.text();
-      let displayText = data;
+      let recommendationsData = null;
       try {
         const parsed = JSON.parse(data);
-        if (parsed && typeof parsed === 'object' && parsed.output) {
-          displayText = parsed.output;
+        if (Array.isArray(parsed) && parsed.length === 2) {
+          // New format: array with two objects, first has Thai output, second has English output
+          const thaiObj = parsed[0];
+          const englishObj = parsed[1];
+          recommendationsData = {
+            output_TH: thaiObj.output || '',
+            output_EN: englishObj.output || ''
+          };
+        } else if (parsed && typeof parsed === 'object' && parsed.output) {
+          // Fallback for old format
+          recommendationsData = { output_EN: parsed.output, output_TH: parsed.output };
+        } else {
+          // Fallback for plain text
+          recommendationsData = { output_EN: data, output_TH: data };
         }
       } catch (err) {
-        // Not JSON, use as-is
+        // Not JSON, use as-is for both languages
+        recommendationsData = { output_EN: data, output_TH: data };
       }
-      setRecommendations(displayText);
+      setRecommendations(recommendationsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while fetching recommendations.');
     } finally {
@@ -179,7 +192,7 @@ export default function CompanyRecommendations() {
                   em: ({ children }) => <em className="italic text-[#1A237E]">{children}</em>,
                 }}
               >
-                {recommendations}
+                {isThaiLanguage ? recommendations.output_TH : recommendations.output_EN}
               </ReactMarkdown>
             </div>
           </div>
