@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BBL Product Recommendation Engine",
   description: "Bangkok Bank Product Recommendation Engine",
+  icons: {
+    icon: "/bbl-logo.svg",
+  },
 };
 
 export default function RootLayout({
