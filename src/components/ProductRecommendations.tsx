@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
 
-export default function CompanyRecommendations() {
+export default function ProductRecommendations() {
   const [companyName, setCompanyName] = useState('');
   const [recommendations, setRecommendations] = useState<{ output_EN: string; output_TH: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
