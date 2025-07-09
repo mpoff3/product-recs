@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getSessionId } from '../utils/session';
 
 export default function ProductChatbot() {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
@@ -19,12 +20,34 @@ export default function ProductChatbot() {
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const sessionId = getSessionId();
+      const response = await fetch('http://135.224.174.121:5678/webhook/product-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          user_message: userMessage,
+        }),
+      });
+      const dataText = await response.text();
+      let reply = '';
+      try {
+        const parsed = JSON.parse(dataText);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].output) {
+          reply = parsed[0].output;
+        } else if (parsed && typeof parsed === 'object' && parsed.output) {
+          reply = parsed.output;
+        } else {
+          reply = dataText;
+        }
+      } catch (err) {
+        reply = dataText;
+      }
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content: 'This is a placeholder response. The chatbot API will be integrated soon.',
+          content: reply,
         },
       ]);
     } catch (error) {
