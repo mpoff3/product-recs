@@ -50,7 +50,7 @@ export default function CompanyRecommendations() {
       }
     }
     try {
-      const response = await fetch('https://mpoff3.app.n8n.cloud/webhook/product-recs', {
+      const response = await fetch('http://135.224.174.121:5678/webhook/product-recs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: companyName, docs: docs }),
