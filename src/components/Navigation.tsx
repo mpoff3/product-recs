@@ -26,6 +26,26 @@ export default function Navigation() {
 
             <div className="flex space-x-1 -ml-32">
               <Link
+                href="/lead-generator"
+                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
+                  pathname === '/lead-generator'
+                    ? 'text-[#002B5C] bg-gray-100'
+                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
+                }`}
+              >
+                <span className="relative z-10">1. Find Leads</span>
+              </Link>
+              <Link
+                href="/qualify-leads"
+                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
+                  pathname === '/qualify-leads'
+                    ? 'text-[#002B5C] bg-gray-100'
+                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
+                }`}
+              >
+                <span className="relative z-10">2. Qualify Leads</span>
+              </Link>
+              <Link
                 href="/"
                 className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
                   pathname === '/'
@@ -33,7 +53,7 @@ export default function Navigation() {
                     : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
                 }`}
               >
-                <span className="relative z-10">Product Recommendations</span>
+                <span className="relative z-10">3. Get Product Recommendations</span>
               </Link>
               <Link
                 href="/product-chatbot"
@@ -43,17 +63,7 @@ export default function Navigation() {
                     : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
                 }`}
               >
-                <span className="relative z-10">Product Chatbot</span>
-              </Link>
-              <Link
-                href="/lead-generator"
-                className={`px-5 py-2 rounded-full text-base font-medium transition-all duration-300 relative group ${
-                  pathname === '/lead-generator'
-                    ? 'text-[#002B5C] bg-gray-100'
-                    : 'text-gray-600 hover:text-[#002B5C] hover:bg-gray-50'
-                }`}
-              >
-                <span className="relative z-10">Lead Generator</span>
+                <span className="relative z-10">4. Ask Followup Questions</span>
               </Link>
             </div>
 
