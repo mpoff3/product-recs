@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { getSessionId } from '../utils/session';
 
 export default function ProductChatbot() {
@@ -69,7 +70,7 @@ export default function ProductChatbot() {
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Chatbot</h1>
           <p className="text-lg text-gray-200 text-center">
-            Chat with our AI assistant about Bangkok Bank products
+            Chat with our AI expert on BBL products
           </p>
         </div>
         <div className="w-full bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl max-w-4xl mx-auto border border-white/20 flex flex-col">
@@ -87,7 +88,27 @@ export default function ProductChatbot() {
                       : 'bg-white/10 text-white'
                   }`}
                 >
-                  {message.content}
+                  {message.role === 'assistant' ? (
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-semibold mb-1">{children}</h3>,
+                        p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                        ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                        li: ({ children }) => <li className="ml-2">{children}</li>,
+                        code: ({ children }) => <code className="bg-white/10 px-1 py-0.5 rounded text-sm">{children}</code>,
+                        pre: ({ children }) => <pre className="bg-white/10 p-2 rounded text-sm overflow-x-auto">{children}</pre>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  ) : (
+                    message.content
+                  )}
                 </div>
               </div>
             ))}

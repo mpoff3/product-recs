@@ -93,7 +93,7 @@ export default function ProductRecommendations() {
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Recommendations</h1>
           <p className="text-lg text-gray-200 text-center">
-            AI-powered product recommendations tailored to your business needs
+            AI-powered BBL product recommendations tailored to a company's needs
           </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
