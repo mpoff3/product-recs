@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
 
@@ -11,6 +11,31 @@ export default function ProductRecommendations() {
   const [error, setError] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [isThaiLanguage, setIsThaiLanguage] = useState(false);
+
+  // Restore state from localStorage on mount
+  useEffect(() => {
+    const savedCompanyName = localStorage.getItem('pr_companyName');
+    const savedRecommendations = localStorage.getItem('pr_recommendations');
+    const savedIsThaiLanguage = localStorage.getItem('pr_isThaiLanguage');
+    if (savedCompanyName) setCompanyName(savedCompanyName);
+    if (savedRecommendations) setRecommendations(JSON.parse(savedRecommendations));
+    if (savedIsThaiLanguage) setIsThaiLanguage(savedIsThaiLanguage === 'true');
+  }, []);
+
+  // Persist state to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem('pr_companyName', companyName);
+  }, [companyName]);
+  useEffect(() => {
+    if (recommendations) {
+      localStorage.setItem('pr_recommendations', JSON.stringify(recommendations));
+    } else {
+      localStorage.removeItem('pr_recommendations');
+    }
+  }, [recommendations]);
+  useEffect(() => {
+    localStorage.setItem('pr_isThaiLanguage', isThaiLanguage.toString());
+  }, [isThaiLanguage]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;

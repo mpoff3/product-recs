@@ -27,8 +27,8 @@ async function parsePDF(file: File): Promise<string> {
   // Dynamically import pdfjs-dist only in the browser
   // @ts-expect-error: No type declarations for legacy build
   const pdfjsDist = await import('pdfjs-dist/legacy/build/pdf');
-  const pdfjsVersion = (await import('pdfjs-dist/package.json')).default;
-  pdfjsDist.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion.version}/pdf.worker.min.js`;
+
+  pdfjsDist.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
   const { getDocument } = pdfjsDist;
 
   const arrayBuffer = await file.arrayBuffer();

@@ -1,18 +1,44 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getSessionId } from '../utils/session';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ProductChatbot() {
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
-    {
-      role: 'assistant',
-      content: "Hello! I'm your Bangkok Bank Product Assistant. How can I help you today?",
-    },
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chatbot_messages');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch {}
+      }
+    }
+    return [
+      {
+        role: 'assistant',
+        content: "Hello! I'm your Bangkok Bank Product Assistant. How can I help you today?",
+      },
+    ];
+  });
+  const [inputMessage, setInputMessage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chatbot_input');
+      if (saved) return saved;
+    }
+    return '';
+  });
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Persist chat history and input to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem('chatbot_messages', JSON.stringify(messages));
+  }, [messages]);
+  useEffect(() => {
+    localStorage.setItem('chatbot_input', inputMessage);
+  }, [inputMessage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +93,33 @@ export default function ProductChatbot() {
     }
   };
 
+  // Helper to reset chat
+  const resetChat = () => {
+    const welcome: { role: 'assistant'; content: string }[] = [
+      { role: 'assistant', content: "Hello! I'm your Bangkok Bank Product Assistant. How can I help you today?" }
+    ];
+    setMessages(welcome);
+    setInputMessage('');
+    localStorage.setItem('chatbot_messages', JSON.stringify(welcome));
+    localStorage.setItem('chatbot_input', '');
+    // Generate and set a new sessionId
+    const newSessionId = uuidv4();
+    localStorage.setItem('sessionId', newSessionId);
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-gradient-to-b from-[#002B5C] to-[#004299] text-white font-sans pt-16">
+      {/* Fixed Clear Chat Button */}
+      <div className="fixed z-50 bottom-8 right-8">
+        <button
+          type="button"
+          onClick={resetChat}
+          className="text-xs px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium border border-white/20 shadow-lg transition-colors backdrop-blur-lg"
+          title="Clear chat history"
+        >
+          Clear Chat
+        </button>
+      </div>
       <div className="w-full max-w-5xl flex flex-col items-center px-4 py-16 mx-auto">
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Chatbot</h1>
