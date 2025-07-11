@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
@@ -14,9 +15,11 @@ export default function Navigation() {
             <div className="flex items-center gap-3">
               <Link href="/" className="flex items-center gap-3 group">
                 <div className="relative">
-                  <img
+                  <Image
                     src="/bbl-logo.png"
                     alt="Bangkok Bank Logo"
+                    width={40}
+                    height={40}
                     className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>

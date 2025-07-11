@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
 
@@ -43,14 +42,14 @@ export default function ProductRecommendations() {
     if (files.length > 0) {
       try {
         docs = await parseFiles(files);
-      } catch (err) {
+      } catch {
         setError('Error parsing uploaded files.');
         setIsLoading(false);
         return;
       }
     }
     try {
-      const response = await fetch('http://135.224.174.121:5678/webhook/product-recs', {
+      const response = await fetch(process.env.NEXT_PUBLIC_PRODUCT_RECS_WEBHOOK_URL!, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: companyName, docs: docs }),
@@ -75,7 +74,7 @@ export default function ProductRecommendations() {
           // Fallback for plain text
           recommendationsData = { output_EN: data, output_TH: data };
         }
-      } catch (err) {
+      } catch {
         // Not JSON, use as-is for both languages
         recommendationsData = { output_EN: data, output_TH: data };
       }
@@ -93,7 +92,7 @@ export default function ProductRecommendations() {
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Recommendations</h1>
           <p className="text-lg text-gray-200 text-center">
-            AI-powered BBL product recommendations tailored to a company's needs
+            AI-powered BBL product recommendations tailored to a company&apos;s needs
           </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">

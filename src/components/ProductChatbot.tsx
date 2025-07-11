@@ -22,7 +22,7 @@ export default function ProductChatbot() {
     setIsLoading(true);
     try {
       const sessionId = getSessionId();
-      const response = await fetch('http://135.224.174.121:5678/webhook/product-chat', {
+      const response = await fetch(process.env.NEXT_PUBLIC_PRODUCT_CHAT_WEBHOOK_URL!, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -41,7 +41,7 @@ export default function ProductChatbot() {
         } else {
           reply = dataText;
         }
-      } catch (err) {
+      } catch {
         reply = dataText;
       }
       setMessages((prev) => [
@@ -51,7 +51,7 @@ export default function ProductChatbot() {
           content: reply,
         },
       ]);
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
