@@ -49,13 +49,14 @@ export default function ProductRecommendations() {
       }
     }
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_PRODUCT_RECS_WEBHOOK_URL!, {
+      const response = await fetch('/api/product-recs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: companyName, docs: docs }),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.text();
+      const responseData = await response.json();
+      const data = responseData.data;
       let recommendationsData = null;
       try {
         const parsed = JSON.parse(data);
@@ -92,7 +93,7 @@ export default function ProductRecommendations() {
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Recommendations</h1>
           <p className="text-lg text-gray-200 text-center">
-            AI-powered BBL product recommendations tailored to a company&apos;s needs
+            AI-powered BBL product recommendations specific to a company&apos;s needs
           </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
@@ -202,21 +203,28 @@ export default function ProductRecommendations() {
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={isLoading || !companyName.trim()}
-        className="fixed z-50 bottom-8 right-8 flex items-center gap-2 bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        style={{ minWidth: '240px' }}
-      >
+      <div className="fixed z-50 bottom-8 right-8 flex flex-col items-end gap-2">
         {isLoading && (
-          <svg className="animate-spin h-6 w-6 text-[#002B5C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-          </svg>
+          <div className="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 text-white text-sm font-medium border border-white/20">
+            This may take a couple minutes...
+          </div>
         )}
-        {isLoading ? 'Loading...' : 'Get Recommendations'}
-      </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isLoading || !companyName.trim()}
+          className="flex items-center gap-2 bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          style={{ minWidth: '240px' }}
+        >
+          {isLoading && (
+            <svg className="animate-spin h-6 w-6 text-[#002B5C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          )}
+          {isLoading ? 'Loading...' : 'Get Recommendations'}
+        </button>
+      </div>
     </div>
   );
 } 

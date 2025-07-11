@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { getSessionId } from '../utils/session';
 
 export default function ProductChatbot() {
@@ -11,6 +12,7 @@ export default function ProductChatbot() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ export default function ProductChatbot() {
     setIsLoading(true);
     try {
       const sessionId = getSessionId();
-      const response = await fetch(process.env.NEXT_PUBLIC_PRODUCT_CHAT_WEBHOOK_URL!, {
+      const response = await fetch('/api/product-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -30,7 +32,8 @@ export default function ProductChatbot() {
           user_message: userMessage,
         }),
       });
-      const dataText = await response.text();
+      const responseData = await response.json();
+      const dataText = responseData.data;
       let reply = '';
       try {
         const parsed = JSON.parse(dataText);
@@ -70,12 +73,12 @@ export default function ProductChatbot() {
         <div className="mb-12 flex flex-col items-center">
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Product Chatbot</h1>
           <p className="text-lg text-gray-200 text-center">
-            Chat with our AI expert on BBL products
+            Chat with an AI expert on BBL products
           </p>
         </div>
         <div className="w-full bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl max-w-4xl mx-auto border border-white/20 flex flex-col">
           {/* Chat Messages */}
-          <div className="flex-1 p-6 space-y-4 min-h-[400px] max-h-[600px] overflow-y-auto">
+          <div className="p-6 space-y-4 h-[400px] overflow-y-auto">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -90,18 +93,66 @@ export default function ProductChatbot() {
                 >
                   {message.role === 'assistant' ? (
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
-                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-semibold mb-1">{children}</h3>,
-                        p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                        em: ({ children }) => <em className="italic">{children}</em>,
-                        ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                        li: ({ children }) => <li className="ml-2">{children}</li>,
-                        code: ({ children }) => <code className="bg-white/10 px-1 py-0.5 rounded text-sm">{children}</code>,
-                        pre: ({ children }) => <pre className="bg-white/10 p-2 rounded text-sm overflow-x-auto">{children}</pre>,
+                        h1: ({ children }) => (
+                          <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3 className="text-lg font-semibold mb-2 mt-4 text-white">{children}</h3>
+                        ),
+                        p: ({ children }) => (
+                          <p className="mb-4 mt-2 leading-relaxed text-white">{children}</p>
+                        ),
+                        strong: ({ children }) => (
+                          <strong className="font-semibold text-white">{children}</strong>
+                        ),
+                        em: ({ children }) => (
+                          <em className="italic text-white">{children}</em>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="list-disc list-inside mb-4 mt-2 space-y-1 text-white">{children}</ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="list-decimal pl-6 mb-4 mt-2 space-y-1 text-white">{children}</ol>
+                        ),
+                        li: ({ children }) => (
+                          <li className="text-white">{children}</li>
+                        ),
+                        code: ({ children }) => (
+                          <code className="bg-white/10 px-1 py-0.5 rounded text-sm text-white">{children}</code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre className="bg-white/10 p-3 rounded text-sm overflow-x-auto text-white mb-4 mt-2">{children}</pre>
+                        ),
+                        hr: () => (
+                          <hr className="my-6 border-t-2 border-white/30" />
+                        ),
+                        table: ({ children }) => (
+                          <div className="overflow-x-auto my-6">
+                            <table className="min-w-full border border-white/20 rounded-lg text-white bg-white/5">
+                              {children}
+                            </table>
+                          </div>
+                        ),
+                        thead: ({ children }) => (
+                          <thead className="bg-white/10">
+                            {children}
+                          </thead>
+                        ),
+                        tbody: ({ children }) => <tbody>{children}</tbody>,
+                        tr: ({ children }) => (
+                          <tr className="border-b border-white/20 last:border-b-0">{children}</tr>
+                        ),
+                        th: ({ children }) => (
+                          <th className="px-4 py-2 font-bold text-left border-r border-white/20 last:border-r-0 bg-white/10">{children}</th>
+                        ),
+                        td: ({ children }) => (
+                          <td className="px-4 py-2 border-r border-white/20 last:border-r-0">{children}</td>
+                        ),
                       }}
                     >
                       {message.content}
@@ -125,13 +176,26 @@ export default function ProductChatbot() {
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="p-4 border-t border-white/10">
             <div className="flex gap-4">
-              <input
-                type="text"
+              <textarea
+                ref={textareaRef}
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={(e) => {
+                  setInputMessage(e.target.value);
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto';
+                    textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+                  }
+                }}
                 placeholder="Type your message here..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-white/25 focus:border-transparent outline-none transition-all"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-white/25 focus:border-transparent outline-none transition-all resize-none min-h-[48px] max-h-[84px] leading-tight overflow-y-auto"
                 disabled={isLoading}
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
               />
               <button
                 type="submit"
