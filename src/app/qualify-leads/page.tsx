@@ -11,24 +11,12 @@ const CHECKLIST = [
   "Positive Operating Cash Flow for Past 2 Years",
 ];
 
-function getMockChecklistResults(companyName: string) {
-  // Alternate Fail/Pass for demo, with plausible explanations
-  return CHECKLIST.map((item, idx) => {
-    const status = idx % 2 === 0 ? "Fail" : "Pass";
-    let reasoning = "";
-    if (status === "Fail") {
-      reasoning = `Based on the available financial data for ${companyName}, this criterion is not met. Recent trends or ratios do not satisfy the benchmark, indicating a potential area of concern. Further review of the company's financials is recommended to assess the underlying causes.`;
-    } else {
-      reasoning = `The analysis of ${companyName}'s financial statements indicates that this criterion is met. The company meets or exceeds the required benchmark, suggesting sound financial management in this area.`;
-    }
-    return { item, status, reasoning };
-  });
-}
-
 export default function QualifyLeads() {
   const [companyName, setCompanyName] = useState("");
   const [populated, setPopulated] = useState(false);
   const [results, setResults] = useState<{ item: string; status: string; reasoning: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const handlePopulate = () => {
@@ -37,14 +25,50 @@ export default function QualifyLeads() {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (!companyName.trim()) return;
-    const unsorted = getMockChecklistResults(companyName.trim());
-    // Sort so Fail first, then Pass
-    const sorted = [...unsorted].sort((a, b) => (a.status === b.status ? 0 : a.status === "Fail" ? -1 : 1));
-    setResults(sorted);
-    setPopulated(true);
+    setLoading(true);
+    setResults([]);
+    setPopulated(false);
+    try {
+      const response = await fetch("/api/qualify-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company: companyName.trim() }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const responseData = await response.json();
+      let data;
+      try {
+        data = JSON.parse(responseData.data);
+      } catch {
+        throw new Error("Invalid response format from backend");
+      }
+      // data is expected to be an array with one object with an 'output' field
+      const output = data[0]?.output || {};
+      const checklistResults = CHECKLIST.map((item) => {
+        const result = output[item];
+        if (result) {
+          return {
+            item,
+            status: result.Pass ? "Pass" : "Fail",
+            reasoning: result.Reasoning || "",
+          };
+        } else {
+          return { item, status: "", reasoning: "" };
+        }
+      });
+      // Sort so Fail first, then Pass
+      const sorted = [...checklistResults].sort((a, b) => (a.status === b.status ? 0 : a.status === "Fail" ? -1 : 1));
+      setResults(sorted);
+      setPopulated(true);
+    } catch (err: any) {
+      setError(err.message || "An error occurred while fetching results.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Reset checklist if company name changes
@@ -52,6 +76,7 @@ export default function QualifyLeads() {
     setCompanyName(e.target.value);
     setPopulated(false);
     setResults([]);
+    setError("");
   };
 
   return (
@@ -112,6 +137,16 @@ export default function QualifyLeads() {
               </tbody>
             </table>
           </div>
+          {error && (
+            <div className="w-full bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-200 text-center text-base font-medium mt-6">
+              {error}
+            </div>
+          )}
+          {loading && (
+            <div className="w-full bg-white/10 border border-white/20 rounded-lg p-4 text-white text-center text-base font-medium mt-6">
+              Loading results...
+            </div>
+          )}
         </form>
       </div>
       <div className="fixed z-50 bottom-8 right-8 flex flex-col items-end gap-2">
