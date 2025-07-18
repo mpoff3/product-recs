@@ -117,6 +117,10 @@ export default function QualifyLeads() {
     setPopulated(false);
     setResults([]);
     setError("");
+    // Clear localStorage when company name changes
+    localStorage.removeItem('ql_results');
+    localStorage.removeItem('ql_populated');
+    localStorage.removeItem('ql_error');
   };
 
   return (
@@ -142,12 +146,12 @@ export default function QualifyLeads() {
               aria-label="Company Name"
             />
           </div>
-         <div className="overflow-x-auto">
-            <table className="min-w-full bg-white/5 rounded-2xl text-white border-separate border-spacing-0 shadow-lg" style={{ minWidth: '900px' }}>
+         <div className="overflow-x-auto w-full">
+            <table className="w-full bg-white/5 rounded-2xl text-white border-separate border-spacing-0 shadow-lg">
               <thead>
                 <tr>
-                  <th className="px-8 py-4 text-center font-semibold text-lg rounded-tl-2xl bg-white/10 w-[250px]">Line Item</th>
-                  <th className="px-8 py-4 text-center font-semibold text-lg bg-white/10 whitespace-nowrap">Pass / Fail</th>
+                  <th className="px-8 py-4 text-center font-semibold text-lg rounded-tl-2xl bg-white/10 w-[200px]">Line Item</th>
+                  <th className="px-8 py-4 text-center font-semibold text-lg bg-white/10 whitespace-nowrap w-[100px]">Pass / Fail</th>
                   <th className="px-8 py-4 text-center font-semibold text-lg rounded-tr-2xl bg-white/10 w-[440px]">Reasoning & Sources</th>
                 </tr>
               </thead>
@@ -157,7 +161,7 @@ export default function QualifyLeads() {
                     `border-t border-white/10 ${idx % 2 === 0 ? 'bg-white/5' : 'bg-white/0'} hover:bg-white/10 transition-colors`
                   }>
                     <td className="px-8 py-5 font-medium align-top text-base">{row.item}</td>
-                    <td className="px-8 py-5 align-top text-base">
+                    <td className="px-8 py-5 align-top text-base text-center">
                       {row.status ? (
                         <span className={`inline-block px-4 py-1 rounded-full font-semibold text-lg ${row.status === 'Fail' ? 'bg-red-500/20 text-red-200 border border-red-400/30' : 'bg-green-500/20 text-green-200 border border-green-400/30'}`}>{row.status}</span>
                       ) : (
@@ -205,25 +209,30 @@ export default function QualifyLeads() {
         </form>
       </div>
       <div className="fixed z-50 bottom-8 right-8 flex flex-col items-end gap-2">
-      <button
-        type="button"
-        onClick={handlePopulate}
-        disabled={!companyName.trim() || loading}
-        className="flex justify-center items-center bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        style={{ minWidth: '240px', height: '64px' }} // ensures consistent height
-      >
-        {loading ? (
-          <>
-            <svg className="animate-spin h-6 w-6 text-[#002B5C] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
-            Loading...
-          </>
-        ) : (
-          'Populate'
+        {loading && (
+          <div className="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 text-white text-sm font-medium border border-white/20">
+            This may take a couple minutes...
+          </div>
         )}
-      </button>
+        <button
+          type="button"
+          onClick={handlePopulate}
+          disabled={!companyName.trim() || loading}
+          className="flex justify-center items-center bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          style={{ minWidth: '240px', height: '64px' }} // ensures consistent height
+        >
+          {loading ? (
+            <>
+              <svg className="animate-spin h-6 w-6 text-[#002B5C] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              Researching...
+            </>
+          ) : (
+            'Populate'
+          )}
+        </button>
       </div>
     </div>
   );
