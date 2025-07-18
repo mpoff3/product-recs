@@ -142,14 +142,13 @@ export default function QualifyLeads() {
               aria-label="Company Name"
             />
           </div>
-          <label className="text-2xl font-semibold text-white mb-6 text-center block tracking-tight">Condensed Financial Underwriting Checklist</label>
-          <div className="overflow-x-auto">
+         <div className="overflow-x-auto">
             <table className="min-w-full bg-white/5 rounded-2xl text-white border-separate border-spacing-0 shadow-lg" style={{ minWidth: '900px' }}>
               <thead>
                 <tr>
-                  <th className="px-8 py-4 text-left font-semibold text-lg rounded-tl-2xl bg-white/10">Line Item</th>
-                  <th className="px-8 py-4 text-left font-semibold text-lg bg-white/10 whitespace-nowrap">Pass / Fail</th>
-                  <th className="px-8 py-4 text-left font-semibold text-lg rounded-tr-2xl bg-white/10 w-[440px]">Reasoning</th>
+                  <th className="px-8 py-4 text-center font-semibold text-lg rounded-tl-2xl bg-white/10 w-[250px]">Line Item</th>
+                  <th className="px-8 py-4 text-center font-semibold text-lg bg-white/10 whitespace-nowrap">Pass / Fail</th>
+                  <th className="px-8 py-4 text-center font-semibold text-lg rounded-tr-2xl bg-white/10 w-[440px]">Reasoning & Sources</th>
                 </tr>
               </thead>
               <tbody>
