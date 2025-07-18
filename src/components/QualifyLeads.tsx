@@ -206,21 +206,25 @@ export default function QualifyLeads() {
         </form>
       </div>
       <div className="fixed z-50 bottom-8 right-8 flex flex-col items-end gap-2">
-        <button
-          type="button"
-          onClick={handlePopulate}
-          disabled={!companyName.trim() || loading}
-          className="flex items-center gap-2 bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          style={{ minWidth: '240px' }}
-        >
-          {loading && (
-            <svg className="animate-spin h-6 w-6 text-[#002B5C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <button
+        type="button"
+        onClick={handlePopulate}
+        disabled={!companyName.trim() || loading}
+        className="flex justify-center items-center bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        style={{ minWidth: '240px', height: '64px' }} // ensures consistent height
+      >
+        {loading ? (
+          <>
+            <svg className="animate-spin h-6 w-6 text-[#002B5C] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
             </svg>
-          )}
-          {loading ? 'Loading...' : 'Populate'}
-        </button>
+            Loading...
+          </>
+        ) : (
+          'Populate'
+        )}
+      </button>
       </div>
     </div>
   );
