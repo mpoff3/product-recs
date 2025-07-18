@@ -4,9 +4,9 @@ import { useState, useRef } from "react";
 
 const CHECKLIST = [
   "Revenue Growth (Year-over-Year > 5%)",
-  "EBITDA Margin ≥ 15%",
-  "Debt Service Coverage Ratio (DSCR) ≥ 1.25x",
-  "Leverage Ratio (Debt/Equity) ≤ 2.0x",
+  "EBITDA Margin >= 15%",
+  "Debt Service Coverage Ratio (DSCR) >= 1.25x",
+  "Leverage Ratio (Debt/Equity) <= 2.0x",
   "3 Years of Audited Financial Statements Available",
   "Positive Operating Cash Flow for Past 2 Years",
 ];
@@ -60,9 +60,7 @@ export default function QualifyLeads() {
           return { item, status: "", reasoning: "" };
         }
       });
-      // Sort so Fail first, then Pass
-      const sorted = [...checklistResults].sort((a, b) => (a.status === b.status ? 0 : a.status === "Fail" ? -1 : 1));
-      setResults(sorted);
+      setResults(checklistResults);
       setPopulated(true);
     } catch (err: any) {
       setError(err.message || "An error occurred while fetching results.");
@@ -127,7 +125,25 @@ export default function QualifyLeads() {
                     </td>
                     <td className="px-8 py-5 align-top text-base w-[440px]">
                       {row.reasoning ? (
-                        <span className="block text-white/90 leading-relaxed">{row.reasoning}</span>
+                        <span className="block text-white/90 leading-relaxed">
+                          {row.reasoning.split(' ').map((word, index) => {
+                            // Check if the word is a URL (starts with http or https)
+                            if (word.startsWith('http://') || word.startsWith('https://')) {
+                              return (
+                                <a
+                                  key={index}
+                                  href={word}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-300 hover:text-blue-200 underline break-all"
+                                >
+                                  {word}
+                                </a>
+                              );
+                            }
+                            return word + ' ';
+                          })}
+                        </span>
                       ) : (
                         <div className="h-8 w-full" />
                       )}
@@ -142,22 +158,24 @@ export default function QualifyLeads() {
               {error}
             </div>
           )}
-          {loading && (
-            <div className="w-full bg-white/10 border border-white/20 rounded-lg p-4 text-white text-center text-base font-medium mt-6">
-              Loading results...
-            </div>
-          )}
+
         </form>
       </div>
       <div className="fixed z-50 bottom-8 right-8 flex flex-col items-end gap-2">
         <button
           type="button"
           onClick={handlePopulate}
-          disabled={!companyName.trim()}
+          disabled={!companyName.trim() || loading}
           className="flex items-center gap-2 bg-white text-[#002B5C] py-4 px-10 rounded-full font-semibold text-xl shadow-2xl hover:bg-gray-50 focus:ring-2 focus:ring-white/25 focus:ring-offset-2 focus:ring-offset-[#002B5C] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           style={{ minWidth: '240px' }}
         >
-          Populate
+          {loading && (
+            <svg className="animate-spin h-6 w-6 text-[#002B5C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          )}
+          {loading ? 'Loading...' : 'Populate'}
         </button>
       </div>
     </div>

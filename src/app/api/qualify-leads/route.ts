@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const response = await fetch('http://localhost:5678/webhook/qualify-leads', {
+    const response = await fetch('http://135.224.174.121:5678/webhook/qualify-leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
