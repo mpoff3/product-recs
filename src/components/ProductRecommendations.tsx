@@ -3,29 +3,221 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
+import React from 'react'; // Added missing import for React.Children.map
 
 // Add this helper function for rendering text with clickable links
 const renderTextWithLinks = (text: string) => {
-  return text.split(' ').map((word, index) => {
-    // Detect URLs with optional leading '(' and optional trailing punctuation like ')' or ').', etc.
-    const match = word.match(/^(\(?)(https?:\/\/[^\s)]+)(\)?)?([.,;!?)]?)/);
-    if (match && match[2]) {
-      const [, openParen, url, closeParen, trailing] = match;
-      return (
-        <a
-          key={index}
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-300 hover:text-blue-200 underline break-all"
-        >
-          {openParen}{url}{closeParen}{trailing}{' '}
-        </a>
-      );
+  // Use a more comprehensive regex to find URLs within text
+  const urlRegex = /(\(?)(https?:\/\/[^\s)]+)(\)?)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before the URL
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
     }
-    return word + ' ';
-  });
+    
+    // Add the URL as a link
+    const [, openParen, url, closeParen] = match;
+    parts.push(
+      <a
+        key={`url-${match.index}`}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-300 hover:text-blue-200 underline break-all"
+      >
+        {openParen}{url}{closeParen}
+      </a>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // Add remaining text after the last URL
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  
+  return parts.length > 0 ? parts : text;
 };
+
+// --- Feedback UI ---
+const ThumbsUpIcon = ({ selected }: { selected: boolean }) => (
+  <span
+    className={`inline-block text-2xl align-middle transition-colors ${selected ? 'text-green-400' : 'text-gray-400'}`}
+    role="img"
+    aria-label="Good Recommendation"
+  >
+    👍
+  </span>
+);
+const ThumbsDownIcon = ({ selected }: { selected: boolean }) => (
+  <span
+    className={`inline-block text-2xl align-middle transition-colors ${selected ? 'text-red-400' : 'text-gray-400'}`}
+    role="img"
+    aria-label="Bad Recommendation"
+  >
+    👎
+  </span>
+);
+
+function RecommendationItem({ markdown, index }: { markdown: string; index: number }) {
+  const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const [showInput, setShowInput] = useState(false);
+  const [input, setInput] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleThumb = (dir: 'up' | 'down') => {
+    setFeedback(dir);
+    if (dir === 'down') {
+      setShowInput(true);
+    } else {
+      setShowInput(false);
+      setSubmitted(false);
+    }
+  };
+  const handleSend = () => {
+    setSubmitted(true);
+    setShowInput(false);
+    // Here you could send feedback to a backend if needed
+  };
+
+  return (
+    <div className="mb-8 pb-8 border-b border-white/10 last:border-b-0 last:mb-0 last:pb-0">
+      <div className="text-white prose prose-invert max-w-none prose-headings:text-white prose-p:text-white prose-strong:text-white prose-em:text-white prose-a:text-blue-300 prose-ul:text-white prose-li:text-white">
+        <ReactMarkdown
+          components={{
+            h2: ({ children }) => (
+              <h2 className="text-2xl font-bold text-white mb-4 mt-6 first:mt-0">
+                {children}
+              </h2>
+            ),
+            p: ({ children }) => (
+              <p className="mb-4 leading-relaxed">
+                {React.Children.map(children, (child) =>
+                  typeof child === 'string' ? renderTextWithLinks(child) : child
+                )}
+              </p>
+            ),
+            strong: ({ children }) => (
+              <strong className="font-semibold">
+                {React.Children.map(children, (child) =>
+                  typeof child === 'string' ? renderTextWithLinks(child) : child
+                )}
+              </strong>
+            ),
+            em: ({ children }) => (
+              <em className="italic">
+                {React.Children.map(children, (child) =>
+                  typeof child === 'string' ? renderTextWithLinks(child) : child
+                )}
+              </em>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc list-inside mb-4 space-y-2 ml-4 marker:text-white">
+                {children}
+              </ul>
+            ),
+            li: ({ children }) => (
+              <li className="leading-relaxed pl-2">
+                {React.Children.map(children, (child) =>
+                  typeof child === 'string' ? renderTextWithLinks(child) : child
+                )}
+              </li>
+            ),
+            a: ({ href, children }) => (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-300 hover:text-blue-200 underline break-all"
+              >
+                {children}
+              </a>
+            ),
+          }}
+        >
+          {markdown}
+        </ReactMarkdown>
+      </div>
+      <div className="flex items-center gap-6 mt-2">
+        <button
+          type="button"
+          className={`flex items-center gap-1 focus:outline-none px-3 py-2 rounded-lg transition-all ${
+            feedback === 'up' 
+              ? 'bg-green-500/20 border border-green-400/30' 
+              : 'hover:bg-white/10'
+          }`}
+          onClick={() => handleThumb('up')}
+          aria-label="Good Recommendation"
+        >
+          <ThumbsUpIcon selected={feedback === 'up'} />
+          <span className={`ml-1 text-sm font-medium transition-colors ${
+            feedback === 'up' ? 'text-green-200 font-semibold' : 'text-white/80'
+          }`}>Good Recommendation</span>
+        </button>
+        <button
+          type="button"
+          className={`flex items-center gap-1 focus:outline-none px-3 py-2 rounded-lg transition-all ${
+            feedback === 'down' 
+              ? 'bg-red-500/20 border border-red-400/30' 
+              : 'hover:bg-white/10'
+          }`}
+          onClick={() => handleThumb('down')}
+          aria-label="Bad Recommendation"
+        >
+          <ThumbsDownIcon selected={feedback === 'down'} />
+          <span className={`ml-1 text-sm font-medium transition-colors ${
+            feedback === 'down' ? 'text-red-200 font-semibold' : 'text-white/80'
+          }`}>Bad Recommendation</span>
+        </button>
+      </div>
+      {feedback === 'down' && showInput && !submitted && (
+        <div className="mt-3">
+          <label htmlFor={`feedback-input-${index}`} className="block text-sm text-white/70 mb-1">Tell us why (optional):</label>
+          <div className="flex items-center gap-2">
+            <input
+              id={`feedback-input-${index}`}
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              className="border border-white/20 bg-white/10 p-2 rounded w-full max-w-md text-sm text-white placeholder:text-gray-300 focus:ring-2 focus:ring-white/25 focus:border-transparent outline-none transition-all"
+              placeholder="Your feedback..."
+            />
+            <button
+              type="button"
+              onClick={handleSend}
+              className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded transition-all"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+      {submitted && (
+        <div className="mt-3 text-green-200 text-sm font-medium">Thanks for your feedback.</div>
+      )}
+    </div>
+  );
+}
+
+// --- Helper to split recommendations ---
+function splitRecommendations(markdown: string): string[] {
+  // Split on markdown headers (##) followed by numbers 1-10 and a dot
+  const sections = markdown.split(/(?=\n##\s*(?:[1-9]|10)\.\s+)/);
+  
+  if (sections.length <= 1) {
+    // No numbered sections found, return the whole text as one item
+    return [markdown];
+  }
+
+  
+  // Filter out empty sections and return
+  return sections.map(section => section.trim()).filter(Boolean);
+}
 
 export default function ProductRecommendations() {
   const [companyName, setCompanyName] = useState('');
@@ -233,41 +425,22 @@ export default function ProductRecommendations() {
                 </button>
               </div>
             </div>
-            <div className="text-white prose prose-invert max-w-none">
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-6">{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-4">{children}</h3>,
-                  p: ({ children }) => (
-                    <p className="mb-4 leading-relaxed">
-                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
-                    </p>
-                  ),
-                  strong: ({ children }) => (
-                    <strong className="font-semibold">
-                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
-                    </strong>
-                  ),
-                  em: ({ children }) => (
-                    <em className="italic">
-                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
-                    </em>
-                  ),
-                  a: ({ href, children }) => (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-300 hover:text-blue-200 underline break-all"
-                    >
-                      {children}
-                    </a>
-                  ),
-                }}
-              >
-                {isThaiLanguage ? recommendations.output_TH : recommendations.output_EN}
-              </ReactMarkdown>
+            {/* Render each recommendation with feedback */}
+            <div>
+              {(() => {
+                const sections = splitRecommendations(isThaiLanguage ? recommendations.output_TH : recommendations.output_EN);
+                console.log(sections);
+                return (
+                  <>
+                    <div className="text-white mb-6">
+                      <em className="text-gray-300">In order of priority</em>
+                    </div>
+                    {splitRecommendations(isThaiLanguage ? recommendations.output_TH : recommendations.output_EN).map((rec, idx) => (
+                      <RecommendationItem key={idx} markdown={rec} index={idx} />
+                    ))}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
