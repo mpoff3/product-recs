@@ -53,20 +53,29 @@ export default function QualifyLeads() {
   // Restore state from localStorage on mount
   useEffect(() => {
     const savedCompanyName = localStorage.getItem('ql_companyName');
-    const savedPopulated = localStorage.getItem('ql_populated');
     const savedResults = localStorage.getItem('ql_results');
     const savedCompanyOverview = localStorage.getItem('ql_companyOverview');
     const savedEditableLineItems = localStorage.getItem('ql_editableLineItems');
     const savedError = localStorage.getItem('ql_error');
     
     if (savedCompanyName) setCompanyName(savedCompanyName);
-    if (savedPopulated) setPopulated(savedPopulated === 'true');
     if (savedResults) {
       try {
-        setResults(JSON.parse(savedResults));
+        const parsedResults = JSON.parse(savedResults);
+        setResults(parsedResults);
+        // Set populated based on whether we have results, not just the localStorage flag
+        if (parsedResults && parsedResults.length > 0) {
+          setPopulated(true);
+        }
       } catch {}
     }
-    if (savedCompanyOverview) setCompanyOverview(savedCompanyOverview);
+    if (savedCompanyOverview) {
+      setCompanyOverview(savedCompanyOverview);
+      // If we have company overview, also set populated to true
+      if (savedCompanyOverview.trim()) {
+        setPopulated(true);
+      }
+    }
     if (savedEditableLineItems) {
       try {
         setEditableLineItems(JSON.parse(savedEditableLineItems));
@@ -124,6 +133,14 @@ export default function QualifyLeads() {
       localStorage.removeItem('ql_error');
     }
   }, [error]);
+
+  // Keep populated state in sync with actual data
+  useEffect(() => {
+    const hasData = Boolean(results.length > 0 || (companyOverview && companyOverview.trim() !== ''));
+    if (hasData !== populated) {
+      setPopulated(hasData);
+    }
+  }, [results, companyOverview]);
 
   const handlePopulate = () => {
     if (formRef.current) {

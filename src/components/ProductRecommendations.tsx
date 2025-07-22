@@ -4,6 +4,29 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
 
+// Add this helper function for rendering text with clickable links
+const renderTextWithLinks = (text: string) => {
+  return text.split(' ').map((word, index) => {
+    // Detect URLs with optional leading '(' and optional trailing punctuation like ')' or ').', etc.
+    const match = word.match(/^(\(?)(https?:\/\/[^\s)]+)(\)?)?([.,;!?)]?)/);
+    if (match && match[2]) {
+      const [, openParen, url, closeParen, trailing] = match;
+      return (
+        <a
+          key={index}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-300 hover:text-blue-200 underline break-all"
+        >
+          {openParen}{url}{closeParen}{trailing}{' '}
+        </a>
+      );
+    }
+    return word + ' ';
+  });
+};
+
 export default function ProductRecommendations() {
   const [companyName, setCompanyName] = useState('');
   const [recommendations, setRecommendations] = useState<{ output_EN: string; output_TH: string } | null>(null);
@@ -216,9 +239,31 @@ export default function ProductRecommendations() {
                   h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
                   h2: ({ children }) => <h2 className="text-xl font-bold mb-3 mt-6">{children}</h2>,
                   h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-4">{children}</h3>,
-                  p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
-                  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                  em: ({ children }) => <em className="italic">{children}</em>,
+                  p: ({ children }) => (
+                    <p className="mb-4 leading-relaxed">
+                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
+                    </p>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold">
+                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
+                    </strong>
+                  ),
+                  em: ({ children }) => (
+                    <em className="italic">
+                      {typeof children === 'string' ? renderTextWithLinks(children) : children}
+                    </em>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-300 hover:text-blue-200 underline break-all"
+                    >
+                      {children}
+                    </a>
+                  ),
                 }}
               >
                 {isThaiLanguage ? recommendations.output_TH : recommendations.output_EN}
