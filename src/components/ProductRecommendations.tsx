@@ -64,25 +64,58 @@ const ThumbsDownIcon = ({ selected }: { selected: boolean }) => (
   </span>
 );
 
-function RecommendationItem({ markdown, index }: { markdown: string; index: number }) {
+function RecommendationItem({ markdown, index, companyName }: { markdown: string; index: number; companyName: string }) {
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
   const [showInput, setShowInput] = useState(false);
   const [input, setInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const sendFeedback = async (context: string, thumbsUp: boolean, notes: string = '', system: string) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          context,
+          thumbsUp,
+          notes,
+          system,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to send feedback.');
+      } else {
+        setSubmitted(true);
+      }
+    } catch (err) {
+      setError('Failed to send feedback.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleThumb = (dir: 'up' | 'down') => {
     setFeedback(dir);
+    const context = `${companyName ? 'Company: ' + companyName + ' | ' : ''}${markdown}`;
     if (dir === 'down') {
       setShowInput(true);
     } else {
       setShowInput(false);
       setSubmitted(false);
+      sendFeedback(context, true, '', 'product-recs');
     }
   };
   const handleSend = () => {
-    setSubmitted(true);
+    setSubmitted(false);
     setShowInput(false);
-    // Here you could send feedback to a backend if needed
+    const context = `${companyName ? 'Company: ' + companyName + ' | ' : ''}${markdown}`;
+    sendFeedback(context, false, input, 'product-recs');
   };
 
   return (
@@ -153,6 +186,7 @@ function RecommendationItem({ markdown, index }: { markdown: string; index: numb
           }`}
           onClick={() => handleThumb('up')}
           aria-label="Good Recommendation"
+          disabled={loading || submitted}
         >
           <ThumbsUpIcon selected={feedback === 'up'} />
           <span className={`ml-1 text-sm font-medium transition-colors ${
@@ -168,6 +202,7 @@ function RecommendationItem({ markdown, index }: { markdown: string; index: numb
           }`}
           onClick={() => handleThumb('down')}
           aria-label="Bad Recommendation"
+          disabled={loading || submitted}
         >
           <ThumbsDownIcon selected={feedback === 'down'} />
           <span className={`ml-1 text-sm font-medium transition-colors ${
@@ -186,18 +221,23 @@ function RecommendationItem({ markdown, index }: { markdown: string; index: numb
               onChange={e => setInput(e.target.value)}
               className="border border-white/20 bg-white/10 p-2 rounded w-full max-w-md text-sm text-white placeholder:text-gray-300 focus:ring-2 focus:ring-white/25 focus:border-transparent outline-none transition-all"
               placeholder="Your feedback..."
+              disabled={loading}
             />
             <button
               type="button"
               onClick={handleSend}
               className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded transition-all"
+              disabled={loading}
             >
-              Send
+              {loading ? 'Sending...' : 'Send'}
             </button>
           </div>
         </div>
       )}
-      {submitted && (
+      {error && (
+        <div className="mt-3 text-red-200 text-sm font-medium">{error}</div>
+      )}
+      {submitted && !error && (
         <div className="mt-3 text-green-200 text-sm font-medium">Thanks for your feedback.</div>
       )}
     </div>
@@ -436,7 +476,7 @@ export default function ProductRecommendations() {
                       <em className="text-gray-300">In order of priority</em>
                     </div>
                     {splitRecommendations(isThaiLanguage ? recommendations.output_TH : recommendations.output_EN).map((rec, idx) => (
-                      <RecommendationItem key={idx} markdown={rec} index={idx} />
+                      <RecommendationItem key={idx} markdown={rec} index={idx} companyName={companyName} />
                     ))}
                   </>
                 );
