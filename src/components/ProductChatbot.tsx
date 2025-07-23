@@ -27,11 +27,9 @@ const ThumbsDownIcon = ({ selected }: { selected: boolean }) => (
 
 function FeedbackBar({
   chatHistory,
-  aiMessage,
   messageIndex,
 }: {
   chatHistory: { role: 'user' | 'assistant'; content: string }[];
-  aiMessage: string;
   messageIndex: number;
 }) {
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
@@ -68,7 +66,7 @@ function FeedbackBar({
       } else {
         setSubmitted(true);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to send feedback.');
     } finally {
       setLoading(false);
@@ -365,7 +363,6 @@ export default function ProductChatbot() {
                       {index !== 0 && (
                         <FeedbackBar
                           chatHistory={messages}
-                          aiMessage={message.content}
                           messageIndex={index}
                         />
                       )}

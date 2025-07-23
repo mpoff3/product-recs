@@ -93,7 +93,7 @@ function RecommendationItem({ markdown, index, companyName }: { markdown: string
       } else {
         setSubmitted(true);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to send feedback.');
     } finally {
       setLoading(false);

@@ -20,20 +20,6 @@ const BouncingEllipsis = () => (
   </span>
 );
 
-// Add this helper function just below the BouncingEllipsis definition
-const normalizeString = (str: string): string => {
-  return str
-    .toLowerCase()
-    // Replace common unicode comparison / multiplication symbols with ASCII equivalents
-    .replace(/≥/g, ">=")
-    .replace(/≤/g, "<=")
-    .replace(/×/g, "x")
-    // Remove all whitespace and common punctuation that should not affect matching
-    .replace(/\s+/g, "")
-    .replace(/[()%]/g, "")
-    .replace(/%/g, "");
-};
-
 export default function QualifyLeads() {
   const [companyName, setCompanyName] = useState("");
   const [populated, setPopulated] = useState(false);
@@ -140,7 +126,7 @@ export default function QualifyLeads() {
     if (hasData !== populated) {
       setPopulated(hasData);
     }
-  }, [results, companyOverview]);
+  }, [results, companyOverview, populated]);
 
   const handlePopulate = () => {
     if (formRef.current) {
@@ -183,8 +169,12 @@ export default function QualifyLeads() {
       const lineItemsResults = Array.isArray(output["Line Items"]) ? output["Line Items"] : [];
       setResults(lineItemsResults);
       setPopulated(true);
-    } catch (err: any) {
-      setError(err.message || "An error occurred while fetching results.");
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: string }).message === 'string') {
+        setError((err as { message: string }).message);
+      } else {
+        setError('An error occurred while fetching results.');
+      }
     } finally {
       setLoading(false);
     }
@@ -240,7 +230,7 @@ export default function QualifyLeads() {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isResizing]);
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   const renderTextWithLinks = (text: string) => {
     return text.split(' ').map((word, index) => {
@@ -306,7 +296,7 @@ export default function QualifyLeads() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">2</span>
-                    <span>Add, remove, or adjust criteria, then click 'Populate'.</span>
+                    <span>Add, remove, or adjust criteria, then click &apos;Populate&apos;.</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">3</span>
@@ -408,10 +398,10 @@ export default function QualifyLeads() {
                     ))
                   ) : (
                     results.map((row, idx) => {
-                      // row is expected to have keys: Name, Pass, Reasoning
-                      const name = (row as any).Name || (row as any).item || '';
-                      const passValue = (typeof (row as any).Pass === 'boolean') ? (row as any).Pass : ((row as any).status === 'Pass' || (row as any).status === 'true');
-                      const reasoning = (row as any).Reasoning || (row as any).reasoning || '';
+                      // row is expected to have keys: Name, Pass, Reasoning or item, status, reasoning
+                      const name = 'Name' in row ? row.Name : row.item;
+                      const passValue = 'Pass' in row ? row.Pass : (row.status === 'Pass' || row.status === 'true');
+                      const reasoning = 'Reasoning' in row ? row.Reasoning : row.reasoning;
                       return (
                         <tr key={idx} className={`border-t border-white/10 ${idx % 2 === 0 ? 'bg-white/5' : 'bg-white/0'} hover:bg-white/10 transition-colors`}>
                           <td className="px-4 py-3 font-medium align-top text-sm">
