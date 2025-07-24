@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const webhookUrl = process.env.QUALIFY_LEADS_WEBHOOK_URL;
+const QUALIFY_LEADS_WEBHOOK_URL = process.env.QUALIFY_LEADS_WEBHOOK_URL;
 
 export async function POST(request: NextRequest) {
   try {
     // Check if webhook URL is configured
-    if (!webhookUrl) {
+    if (!QUALIFY_LEADS_WEBHOOK_URL) {
       return NextResponse.json({ error: 'Webhook URL not configured' }, { status: 500 });
     }
 
     const body = await request.json();
     
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(QUALIFY_LEADS_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
