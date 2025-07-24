@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const PRODUCT_CHAT_WEBHOOK_URL = process.env.PRODUCT_CHAT_WEBHOOK_URL;
+
 export async function POST(request: NextRequest) {
   try {
+    if (!PRODUCT_CHAT_WEBHOOK_URL) {
+      return NextResponse.json({ error: 'Webhook URL not configured' }, { status: 500 });
+    }
+
     const body = await request.json();
     
-    const response = await fetch(process.env.PRODUCT_CHAT_WEBHOOK_URL!, {
+    const response = await fetch(PRODUCT_CHAT_WEBHOOK_URL!, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
