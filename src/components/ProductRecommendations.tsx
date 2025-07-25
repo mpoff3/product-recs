@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { parseFiles } from '../utils/parseFiles';
+import { downloadRecommendationsAsPDF } from '../utils/pdfGenerator';
 import React from 'react'; // Added missing import for React.Children.map
 
 // Add this helper function for rendering text with clickable links
@@ -266,6 +267,7 @@ export default function ProductRecommendations() {
   const [error, setError] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [isThaiLanguage, setIsThaiLanguage] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Restore state from localStorage on mount
   useEffect(() => {
@@ -307,6 +309,24 @@ export default function ProductRecommendations() {
 
   const handleRemoveFile = (index: number) => {
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+
+  const downloadAsPDF = async () => {
+    if (!recommendations) return;
+    
+    setIsDownloading(true);
+    try {
+      await downloadRecommendationsAsPDF({
+        companyName,
+        recommendations,
+        isThaiLanguage,
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -449,20 +469,39 @@ export default function ProductRecommendations() {
           <div className="w-full mt-8 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl max-w-4xl mx-auto border border-white/20">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Recommended Products</h2>
-              <div className="flex items-center gap-3">
-                <span className="text-white/90 font-medium">Thai</span>
+              <div className="flex items-center gap-4">
                 <button
-                  onClick={() => setIsThaiLanguage(!isThaiLanguage)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/25 ${
-                    isThaiLanguage ? 'bg-white' : 'bg-white/20'
-                  }`}
+                  onClick={downloadAsPDF}
+                  disabled={isDownloading}
+                  className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white px-4 py-2 rounded-lg transition-all font-medium border border-white/20 hover:border-white/30 disabled:border-white/10"
                 >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
-                      isThaiLanguage ? 'translate-x-6 bg-[#002B5C]' : 'translate-x-1 bg-white'
-                    }`}
-                  />
+                  {isDownloading ? (
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  ) : (
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  )}
+                  {isDownloading ? 'Generating PDF...' : 'Download PDF'}
                 </button>
+                <div className="flex items-center gap-3">
+                  <span className="text-white/90 font-medium">Thai</span>
+                  <button
+                    onClick={() => setIsThaiLanguage(!isThaiLanguage)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/25 ${
+                      isThaiLanguage ? 'bg-white' : 'bg-white/20'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
+                        isThaiLanguage ? 'translate-x-6 bg-[#002B5C]' : 'translate-x-1 bg-white'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
             {/* Render each recommendation with feedback */}
