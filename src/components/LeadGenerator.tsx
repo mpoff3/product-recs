@@ -2,7 +2,7 @@
 
 export default function LeadGenerator() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center bg-gradient-to-b from-[#002B5C] to-[#004299] text-white font-sans pt-16">
+    <div className="min-h-screen w-full flex flex-col items-center bg-[#1A47B8] text-white font-sans pt-16">
       <div className="w-full max-w-5xl flex flex-col items-center px-4 py-16 mx-auto">
         <div className="mb-12 flex flex-col items-center text-center"> 
           <h1 className="text-5xl font-bold tracking-tight text-white text-center mb-4">Lead Generator</h1>

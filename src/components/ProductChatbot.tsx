@@ -258,7 +258,7 @@ export default function ProductChatbot() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center bg-gradient-to-b from-[#002B5C] to-[#004299] text-white font-sans pt-16">
+    <div className="min-h-screen w-full flex flex-col items-center bg-[#1A47B8] text-white font-sans pt-16">
       {/* Fixed Clear Chat Button */}
       <div className="fixed z-50 bottom-8 right-8">
         <button
